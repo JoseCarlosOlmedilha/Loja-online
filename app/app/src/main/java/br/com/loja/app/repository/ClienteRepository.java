@@ -1,5 +1,7 @@
 package br.com.loja.app.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -9,7 +11,7 @@ import br.com.loja.app.entity.Cliente;
 public interface ClienteRepository extends JpaRepository<Cliente, Long> {
 
 
-    
+    Optional<Cliente> findByCpf(String cpf);
 
 
 }

@@ -3,6 +3,9 @@ package br.com.loja.app.entity;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -38,6 +41,7 @@ private String nome;
 @Column(nullable = false, length = 11, unique = true)
 private String cpf;
 
+//ENUM
 @Column(nullable = false, length = 1)
 private Character sexo;
 
@@ -45,9 +49,11 @@ private Character sexo;
 private LocalDate dataNascimento;
 
 @OneToOne(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
+@JsonManagedReference("cliente-endereco")
 private Endereco endereco;
 
 @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
+@JsonManagedReference("cliente-telefones")
 private List<Telefone> telefones = new ArrayList<>();
 
 
