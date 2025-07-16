@@ -1,7 +1,5 @@
 package br.com.loja.app.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -51,7 +49,6 @@ private String bairro;
 
 @OneToOne
 @JoinColumn(name = "Cliente_id", nullable = false, unique = true) // coluna será criada em Endereco
-@JsonBackReference("cliente-endereco")
 private Cliente cliente;
 
 

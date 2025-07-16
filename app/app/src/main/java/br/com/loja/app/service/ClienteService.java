@@ -185,23 +185,18 @@ public class ClienteService {
         return true;
     }
 
-    // --- MÉTODOS DE MAPEAMENTO DTO <-> ENTITY ---
-    // Métodos auxiliares para converter DTOs em Entidades e vice-versa
-
+    // Métodos de conversão (DTO para Entity)
     private Cliente fromClienteDTO(ClienteDTO dto) {
         Cliente cliente = new Cliente();
-        // Não setamos o ID aqui, pois é para uma nova criação
         cliente.setNome(dto.getNome());
         cliente.setCpf(dto.getCpf());
         cliente.setSexo(dto.getSexo());
         cliente.setDataNascimento(dto.getDataNascimento());
-        // Endereço e Telefones serão mapeados separadamente no cadastrarCliente
         return cliente;
     }
 
     private Endereco fromEnderecoDTO(EnderecoDTO dto) {
         Endereco endereco = new Endereco();
-        // Não setamos o ID aqui
         endereco.setRua(dto.getRua());
         endereco.setNumero(dto.getNumero());
         endereco.setComplemento(dto.getComplemento());
@@ -209,65 +204,100 @@ public class ClienteService {
         endereco.setCidade(dto.getCidade());
         endereco.setUf(dto.getUf());
         endereco.setCep(dto.getCep());
-        // O cliente será setado no método cadastrarCliente
         return endereco;
     }
 
     private Telefone fromTelefoneDTO(TelefoneDTO dto) {
         Telefone telefone = new Telefone();
-        // Não setamos o ID aqui
         telefone.setTipo(dto.getTipo());
         telefone.setNumero(dto.getNumero());
         telefone.setDdd(dto.getDdd());
-        // O cliente será setado no método cadastrarCliente
         return telefone;
     }
 
-    /**
-     * Converte uma entidade Cliente para um ClienteDTO.
-     * Inclui os IDs, pois este é um DTO de saída.
-     */
+    // Métodos de conversão (Entity para DTO)
     private ClienteDTO toClienteDTO(Cliente cliente) {
         ClienteDTO dto = new ClienteDTO();
-       // dto.setClienteId(cliente.getClienteId()); // Incluindo o ID na saída
+        dto.setClienteId(cliente.getClienteId());
         dto.setNome(cliente.getNome());
         dto.setCpf(cliente.getCpf());
         dto.setSexo(cliente.getSexo());
         dto.setDataNascimento(cliente.getDataNascimento());
 
         if (cliente.getEndereco() != null) {
-            EnderecoDTO enderecoDTO = new EnderecoDTO();
-            enderecoDTO.setRua(cliente.getEndereco().getRua());
-            enderecoDTO.setNumero(cliente.getEndereco().getNumero());
-            enderecoDTO.setComplemento(cliente.getEndereco().getComplemento());
-            enderecoDTO.setBairro(cliente.getEndereco().getBairro());
-            enderecoDTO.setCidade(cliente.getEndereco().getCidade());
-            enderecoDTO.setUf(cliente.getEndereco().getUf());
-            enderecoDTO.setCep(cliente.getEndereco().getCep());
-            dto.setEndereco(enderecoDTO);
+            dto.setEndereco(toEnderecoDTO(cliente.getEndereco()));
         }
 
-        if (cliente.getTelefones() != null) {
+        if (cliente.getTelefones() != null && !cliente.getTelefones().isEmpty()) {
             dto.setTelefones(cliente.getTelefones().stream()
-                .map(telefone -> {
-                    TelefoneDTO telefoneDTO = new TelefoneDTO();
-                    telefoneDTO.setTipo(telefone.getTipo());
-                    telefoneDTO.setNumero(telefone.getNumero());
-                    telefoneDTO.setDdd(telefone.getDdd());
-                    return telefoneDTO;
-                })
+                .map(this::toTelefoneDTO)
                 .collect(Collectors.toList()));
         }
         return dto;
     }
 
-    
-    public ClienteDTO atualizarCliente(Long id, ClienteDTO clienteDTO) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'atualizarCliente'");
+    private EnderecoDTO toEnderecoDTO(Endereco endereco) {
+        EnderecoDTO dto = new EnderecoDTO();
+        dto.setEnderecoId(endereco.getEnderecoId());
+        dto.setRua(endereco.getRua());
+        dto.setNumero(endereco.getNumero());
+        dto.setComplemento(endereco.getComplemento());
+        dto.setBairro(endereco.getBairro());
+        dto.setCidade(endereco.getCidade());
+        dto.setUf(endereco.getUf());
+        dto.setCep(endereco.getCep());
+        return dto;
     }
 
-  public List<Cliente> listarTodosClientes() {
-    return clienteRepository.findAll();
-}
+    private TelefoneDTO toTelefoneDTO(Telefone telefone) {
+        TelefoneDTO dto = new TelefoneDTO();
+        dto.setTelefoneId(telefone.getTelefoneId());
+        dto.setTipo(telefone.getTipo());
+        dto.setNumero(telefone.getNumero());
+        dto.setDdd(telefone.getDdd());
+        return dto;
+    }
+
+    // Métodos de serviço
+    public List<ClienteDTO> listarTodosClientesDTO() {
+        List<Cliente> clientes = clienteRepository.findAllWithRelationships();
+        return clientes.stream()
+            .map(this::toClienteDTO)
+            .collect(Collectors.toList());
+    }
+
+    public ClienteDTO atualizarCliente(Long id, ClienteDTO clienteDTO) {
+        Cliente clienteExistente = clienteRepository.findById(id)
+            .orElseThrow(() -> new DadosNaoEncontradosException("Cliente não encontrado"));
+
+        // Atualiza apenas os campos permitidos
+        clienteExistente.setNome(clienteDTO.getNome());
+        clienteExistente.setSexo(clienteDTO.getSexo());
+        clienteExistente.setDataNascimento(clienteDTO.getDataNascimento());
+
+        // Atualização do endereço se existir no DTO
+        if (clienteDTO.getEndereco() != null) {
+            if (clienteExistente.getEndereco() == null) {
+                clienteExistente.setEndereco(new Endereco());
+            }
+            Endereco endereco = clienteExistente.getEndereco();
+            EnderecoDTO enderecoDTO = clienteDTO.getEndereco();
+            endereco.setRua(enderecoDTO.getRua());
+            endereco.setNumero(enderecoDTO.getNumero());
+            endereco.setComplemento(enderecoDTO.getComplemento());
+            endereco.setBairro(enderecoDTO.getBairro());
+            endereco.setCidade(enderecoDTO.getCidade());
+            endereco.setUf(enderecoDTO.getUf());
+            endereco.setCep(enderecoDTO.getCep());
+        }
+
+        // Atualização dos telefones
+        if (clienteDTO.getTelefones() != null) {
+            // Lógica para atualizar/remover/adicionar telefones
+            // (Implementação mais complexa dependendo dos requisitos)
+        }
+
+        Cliente clienteAtualizado = clienteRepository.save(clienteExistente);
+        return toClienteDTO(clienteAtualizado);
+    }
 }

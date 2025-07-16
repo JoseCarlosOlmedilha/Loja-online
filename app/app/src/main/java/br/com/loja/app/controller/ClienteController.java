@@ -2,6 +2,7 @@ package br.com.loja.app.controller;
 
 import java.util.List;
 
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.loja.app.dtos.ClienteDTO;
-import br.com.loja.app.entity.Cliente;
+
 import br.com.loja.app.service.ClienteService;
 
 @RestController
@@ -51,11 +52,9 @@ public class ClienteController {
         return ResponseEntity.ok(clienteAtualizadoDTO);
     }
 
-    // Você pode adicionar um método para listar todos os clientes, se quiser:
-    @GetMapping("/listarTodos")
-    public ResponseEntity<List<Cliente>> listarTodosClientes() {
-        List<Cliente> clientes = clienteService.listarTodosClientes(); // Você precisaria criar este método no ClienteService
-        return ResponseEntity.ok(clientes);
+   @GetMapping("/listarTodos")
+    public ResponseEntity<List<ClienteDTO>> listarTodosClientes() {
+        List<ClienteDTO> clientesDTO = clienteService.listarTodosClientesDTO();
+        return ResponseEntity.ok(clientesDTO);
     }
-
 }

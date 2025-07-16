@@ -1,6 +1,6 @@
 package br.com.loja.app.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+//import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -39,7 +39,7 @@ private String ddd;
 
 @ManyToOne
 @JoinColumn(name = "cliente_id", nullable = false) 
-@JsonBackReference("cliente-telefones")
+//@JsonBackReference("cliente-telefones")
 private Cliente cliente;
 
 
