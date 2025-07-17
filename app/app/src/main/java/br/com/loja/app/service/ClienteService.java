@@ -21,7 +21,7 @@ import br.com.loja.app.repository.ClienteRepository;
 public class ClienteService {
 
     private final ClienteRepository clienteRepository;
-    private final EnderecoService enderecoService; // Injetamos o EnderecoService
+    private final EnderecoService enderecoService;
 
     // Injeção de dependências via construtor (melhor prática que @Autowired em campo)
     public ClienteService(ClienteRepository clienteRepository, EnderecoService enderecoService) {
@@ -29,34 +29,34 @@ public class ClienteService {
         this.enderecoService = enderecoService;
     }
 
-    // --- MÉTODOS DE NEGÓCIO ---
-
     @Transactional // Garante que a operação seja atômica (tudo ou nada)
-    public ClienteDTO cadastrarCliente(ClienteDTO clienteDTO) {
+    public ClienteDTO cadastrarCliente(ClienteDTO clienteDTO) { //recebe um DTO que a parte de apresnetanção ao usuario
         // 1. Validações iniciais (antes de mapear para entidade)
         validarClienteDTO(clienteDTO); // Chamando um novo método para validações gerais do DTO
 
-        // Opcional: Verifique se o CPF já existe no banco
-        clienteRepository.findByCpf(clienteDTO.getCpf()).ifPresent(c -> {
+        // Verifique se o CPF já existe no banco
+        /*Pega o cpf, verifica com findByCpf, sverifica no ifPresent e executa o codifo na função lambda  */
+        clienteRepository.findByCpf(clienteDTO.getCpf()).ifPresent(clienteEncontrado -> {
             throw new DadosInvalidosException("CPF já cadastrado.");
         });
 
-        // 2. Mapear DTO para Entidade Cliente
-        Cliente cliente = fromClienteDTO(clienteDTO);
+        // Mapear DTO para Entidade Cliente, tranforma o DTO para entidade, nesse mertodo se tiver alguma coisa que é realizada sem interferencia do usuario devemos fazer
+        Cliente cliente = fromClienteDTO(clienteDTO); 
 
-        // 3. Mapear e Validar Endereco
+        //Se o endereço passado for diferente de nullo
         if (clienteDTO.getEndereco() != null) {
-            Endereco endereco = fromEnderecoDTO(clienteDTO.getEndereco());
+            Endereco endereco = fromEnderecoDTO(clienteDTO.getEndereco()); //Da um get no DTO buscando o endereço e tranforma em entidade endereço
             endereco.setCliente(cliente); // Associa o endereço ao cliente
             cliente.setEndereco(endereco); // Associa o cliente ao endereço
 
             // Chamar a validação específica do endereço no EnderecoService
             enderecoService.verificarEndereco(endereco);
         } else {
-            throw new CampoNuloException("Endereço é obrigatório.");
+            throw new CampoNuloException("Por favor, preencha o endereço.");
         }
 
-        // 4. Mapear Telefones
+        //Mapear Telefones
+        //Verifica se o endereço passado não é nulo e verifica se a lista de telefones não está vazia
         if (clienteDTO.getTelefones() != null && !clienteDTO.getTelefones().isEmpty()) {
             List<Telefone> telefones = clienteDTO.getTelefones().stream()
                 .map(telefoneDTO -> {
@@ -70,34 +70,26 @@ public class ClienteService {
             cliente.setTelefones(new java.util.ArrayList<>()); // Garante lista vazia se não houver telefones
         }
 
-        // 5. Salvar no Banco de Dados (cascade = ALL nas associações de Cliente vai salvar endereço e telefones)
+        //Salvar no Banco de Dados (cascade = ALL nas associações de Cliente vai salvar endereço e telefones)
         Cliente clienteSalvo = clienteRepository.save(cliente);
 
         // 6. Mapear a Entidade Salva de volta para DTO de Retorno
         return toClienteDTO(clienteSalvo);
     }
 
-    // Método para buscar cliente (exemplo de como usar DadosNaoEncontradosException)
+    // Método para buscar cliente 
     public ClienteDTO buscarClientePorId(Long id) {
         Cliente cliente = clienteRepository.findById(id)
             .orElseThrow(() -> new DadosNaoEncontradosException("Cliente com ID " + id + " não encontrado."));
         return toClienteDTO(cliente);
     }
 
-
-    // Os métodos cadastrarCliente, excluirCliente e buscarCliente originais
-    // podem ser adaptados para usar DTOs ou removidos/renomeados
-    // para algo como 'excluirClienteEntity' se for manipular a entidade diretamente.
-    // Para uma API REST, normalmente você operaria com DTOs aqui.
-    // O método 'cadastrarCliente(Cliente cliente)' original foi adaptado acima.
     public void excluirCliente(Long clienteId) {
         if (!clienteRepository.existsById(clienteId)) {
             throw new DadosNaoEncontradosException("Cliente com ID " + clienteId + " não encontrado para exclusão.");
         }
         clienteRepository.deleteById(clienteId);
     }
-
-    // --- MÉTODOS DE VALIDAÇÃO (SEUS MÉTODOS EXISTENTES) ---
 
     // Este método irá validar os campos simples do DTO do Cliente
     private void validarClienteDTO(ClienteDTO clienteDTO) {
@@ -107,23 +99,17 @@ public class ClienteService {
         if (clienteDTO.getNome() == null || clienteDTO.getNome().trim().isEmpty() || clienteDTO.getNome().length() > 150) {
             throw new CampoNuloException("Nome é obrigatório e deve ter no máximo 150 caracteres.");
         }
-        // Chamando a validação de CPF que você já tinha
-        // Nota: passar um ClienteDTO para verificarCpf requer adaptação ou criar uma sobrecarga.
-        // Ou, como já validamos o CPF no início do cadastrarCliente, podemos confiar nessa validação inicial.
-        // Se você quiser manter a lógica de verificação de CPF centralizada aqui:
+        
         verificaCpfDoCliente(clienteDTO.getCpf());
 
-
-        // Chamando a validação de Sexo que você já tinha
-        // Adaptei para receber o Character diretamente, o que é mais limpo para DTOs.
         if (clienteDTO.getSexo() == null) {
              throw new CampoNuloException("Sexo é obrigatório.");
         }
         verificaSexo(clienteDTO.getSexo()); // Passando apenas o Character
     }
 
-    // Adaptação do seu método verificarCpf para receber a String do CPF diretamente do DTO
-    public Boolean verificaCpfDoCliente(String cpf) { // Renomeado para evitar conflito e ser mais claro
+
+    public Boolean verificaCpfDoCliente(String cpf) { 
         if (cpf == null) {
             throw new CampoNuloException("Informe um CPF.");
         }
@@ -174,10 +160,9 @@ public class ClienteService {
         return true;
     }
 
-    // Adaptação do seu método verificaSexo para receber o Character diretamente do DTO
     private Boolean verificaSexo(Character sexo) {
         if (sexo == null) {
-            throw new CampoNuloException("Sexo é obrigatório."); // Já foi checado em validarClienteDTO
+            throw new CampoNuloException("Sexo é obrigatório."); 
         }
         if (sexo != 'M' && sexo != 'F') {
             throw new DadosInvalidosException("Sexo inválido, o valor de sexo tem que ser M ou F.");
@@ -260,7 +245,7 @@ public class ClienteService {
 
     // Métodos de serviço
     public List<ClienteDTO> listarTodosClientesDTO() {
-        List<Cliente> clientes = clienteRepository.findAllWithRelationships();
+        List<Cliente> clientes = clienteRepository.buscarTodosComRelacionamentos();
         return clientes.stream()
             .map(this::toClienteDTO)
             .collect(Collectors.toList());

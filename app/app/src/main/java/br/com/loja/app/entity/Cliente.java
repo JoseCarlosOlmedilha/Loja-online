@@ -3,9 +3,6 @@ package br.com.loja.app.entity;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-
-//import com.fasterxml.jackson.annotation.JsonManagedReference;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -48,19 +45,14 @@ private Character sexo;
 @Temporal(TemporalType.DATE)
 private LocalDate dataNascimento;
 
-//Indica que a classe cliente tem um relacionamento 1x1 com endereço
-//Toda operação  de persistencia(salvar,atualizar ou deletar) no cliente serão propagadas para o endereço relacionado
-//Se você remover o vínculo entre o Cliente e o Endereco (ou seja, deixar o cliente.endereco como null),
-// o JPA vai apagar o endereço do banco de dados automaticamente.
+//@OneToOne - Indica que a classe cliente tem um relacionamento 1x1 com endereço
+//cascade = CascadeType.ALL = Toda operação  de persistencia(salvar,atualizar ou deletar) no cliente serão propagadas para o endereço relacionado.
+/*orphanRemoval = true = Se você remover o vínculo entre o Cliente e o Endereco (ou seja, deixar o cliente.endereco como null),
+o JPA vai apagar o endereço do banco de dados automaticamente.*/
 @OneToOne(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
-//@JsonManagedReference("cliente-endereco")
 private Endereco endereco;
 
-
-
 @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
-//@JsonManagedReference("cliente-telefones")   
 private List<Telefone> telefones = new ArrayList<>();
-
 
 }

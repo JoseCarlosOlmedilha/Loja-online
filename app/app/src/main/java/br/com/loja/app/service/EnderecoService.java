@@ -17,12 +17,8 @@ public class EnderecoService {
 
     public Boolean verificarEndereco(Endereco endereco) {
 
-        if (endereco == null) {
-            // Usamos DadosNaoEncontradosException aqui porque o objeto Endereco em si não
-            // foi "encontrado" ou fornecido.
-            // Poderia ser DadosInvalidosException também, dependendo da sua interpretação,
-            // mas esta é mais descritiva.
-            throw new DadosNaoEncontradosException("Endereço não pode ser nulo para validação.");
+        if (endereco == null) { 
+           throw new DadosNaoEncontradosException("Endereço não pode ser nulo para validação.");
         }
 
         // Validação da Rua
@@ -42,8 +38,8 @@ public class EnderecoService {
         if (cidade.length() > 50) {
             throw new DadosInvalidosException("Cidade deve ter no máximo 50 caracteres.");
         }
-        // Regex para garantir que a cidade não tenha números ou caracteres especiais
-        // não permitidos
+        // Regex para garantir que a cidade não tenha números ou caracteres especiais não permitidos
+    
         if (!cidade.matches("^[a-zA-ZáàâãéèêíóôõúüçÁÀÂÃÉÈÊÍÓÔÕÚÜÇ\\s\\-]+$")) {
             throw new DadosInvalidosException(
                     "Nome da cidade inválido. Não deve conter números ou caracteres especiais.");
@@ -70,10 +66,7 @@ public class EnderecoService {
 
         // Validação do Complemento (opcional, pode ser nulo ou vazio se permitido)
         String complemento = endereco.getComplemento();
-        // Se o complemento for obrigatório no seu negócio, descomente a linha abaixo:
-        // if (complemento == null || complemento.trim().isEmpty()) {
-        // throw new DadosInvalidosException("Complemento é obrigatório.");
-        // }
+      
         if (complemento != null && complemento.length() > 100) {
             throw new DadosInvalidosException("Complemento deve ter no máximo 100 caracteres.");
         }
