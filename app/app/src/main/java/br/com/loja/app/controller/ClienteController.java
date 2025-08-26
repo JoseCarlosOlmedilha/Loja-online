@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.loja.app.dtos.ClienteDTO;
 
 import br.com.loja.app.service.ClienteService;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping(value = "/cliente")
@@ -29,7 +30,7 @@ public class ClienteController {
     }
 
     @PostMapping("/cadastrar")
-    public ResponseEntity<ClienteDTO> criarCliente(@RequestBody ClienteDTO clienteDTO) {
+    public ResponseEntity<ClienteDTO> criarCliente(@RequestBody @Valid ClienteDTO clienteDTO) {
         ClienteDTO clienteSalvoDTO = clienteService.cadastrarCliente(clienteDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(clienteSalvoDTO);
     }
@@ -47,7 +48,7 @@ public class ClienteController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ClienteDTO> atualizarCliente(@PathVariable Long id, @RequestBody ClienteDTO clienteDTO) {
+    public ResponseEntity<ClienteDTO> atualizarCliente(@PathVariable Long id, @RequestBody @Valid ClienteDTO clienteDTO) {
         ClienteDTO clienteAtualizadoDTO = clienteService.atualizarCliente(id, clienteDTO);
         return ResponseEntity.ok(clienteAtualizadoDTO);
     }

@@ -1,7 +1,10 @@
 package br.com.loja.app.entity;
 
+import br.com.loja.app.entity.enume.Uf;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -32,8 +35,8 @@ private String rua;
 @Column(nullable = false, length = 50)
 private String cidade;
 
-@Column(nullable = false)
-private String uf;
+@Enumerated(EnumType.STRING)
+private Uf uf;
 
 @Column(nullable = false, length = 10)
 private String numero;
@@ -48,7 +51,7 @@ private String cep;
 private String bairro;
 
 @OneToOne
-@JoinColumn(name = "Cliente_id", nullable = false, unique = true) // coluna será criada em Endereco
+@JoinColumn(name = "Cliente_id", nullable = false, unique = true)
 private Cliente cliente;
 
 

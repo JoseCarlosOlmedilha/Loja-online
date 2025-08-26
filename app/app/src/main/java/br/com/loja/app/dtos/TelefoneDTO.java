@@ -1,5 +1,8 @@
 package br.com.loja.app.dtos;
 
+import br.com.loja.app.entity.enume.TipoTelefone;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,13 +18,15 @@ import lombok.Setter;
 @AllArgsConstructor
 public class TelefoneDTO {
 
-    // Descomente se precisar retornar o ID
-    private Long telefoneId;
+    //private Long telefoneId;
 
+    @NotNull(message = "Tipo não pode ser nulo")
+    private TipoTelefone tipo;
 
-    //Colocar como Enum
-    private String tipo;   // Ex: "CEL", "RES", "COM"
+    @NotBlank(message = "Número não pode ser vazio")
     private String numero;
+
+    @NotBlank(message = "DDD não pode ser vazio")
     private String ddd;
 }
 

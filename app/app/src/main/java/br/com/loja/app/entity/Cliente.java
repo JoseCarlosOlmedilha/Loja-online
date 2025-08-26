@@ -3,9 +3,12 @@ package br.com.loja.app.entity;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import br.com.loja.app.entity.enume.Sexo;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -38,17 +41,12 @@ private String nome;
 @Column(nullable = false, length = 11, unique = true)
 private String cpf;
 
-//ENUM
-@Column(nullable = false, length = 1)
-private Character sexo;
+@Enumerated(EnumType.STRING)
+private Sexo sexo;
 
 @Temporal(TemporalType.DATE)
 private LocalDate dataNascimento;
 
-//@OneToOne - Indica que a classe cliente tem um relacionamento 1x1 com endereço
-//cascade = CascadeType.ALL = Toda operação  de persistencia(salvar,atualizar ou deletar) no cliente serão propagadas para o endereço relacionado.
-/*orphanRemoval = true = Se você remover o vínculo entre o Cliente e o Endereco (ou seja, deixar o cliente.endereco como null),
-o JPA vai apagar o endereço do banco de dados automaticamente.*/
 @OneToOne(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
 private Endereco endereco;
 

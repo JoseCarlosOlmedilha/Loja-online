@@ -1,9 +1,10 @@
 package br.com.loja.app.entity;
 
-//import com.fasterxml.jackson.annotation.JsonBackReference;
-
+import br.com.loja.app.entity.enume.TipoTelefone;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -28,8 +29,8 @@ public class Telefone {
 @GeneratedValue(strategy = GenerationType.IDENTITY)
 private Long telefoneId;
 
-@Column(nullable = false, length = 3)
-private String tipo;
+@Enumerated(EnumType.STRING)
+private TipoTelefone tipo;
 
 @Column(nullable = false, length = 9)
 private String numero;
@@ -39,7 +40,6 @@ private String ddd;
 
 @ManyToOne
 @JoinColumn(name = "cliente_id", nullable = false) 
-//@JsonBackReference("cliente-telefones")
 private Cliente cliente;
 
 

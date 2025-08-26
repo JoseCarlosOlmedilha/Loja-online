@@ -1,13 +1,13 @@
 package br.com.loja.app.dtos;
 
+import br.com.loja.app.entity.enume.Uf;
+import br.com.loja.app.validation.NotEmptyUF;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-// DTO (Data Transfer Object) é uma classe usada para enviar e receber dados entre as partes do sistema.
-// Ela serve para transportar apenas as informações necessárias, escondendo dados que o usuário não precisa ver.
-// Isso ajuda a manter a segurança e a organização do código.
 
 @Getter
 @Setter
@@ -15,15 +15,26 @@ import lombok.Setter;
 @AllArgsConstructor
 public class EnderecoDTO {
 
-    // Descomente se precisar retornar o ID
-    private Long enderecoId;
+    //private Long enderecoId;
 
+    @NotBlank(message = "Rua não pode ser vazia")
     private String rua;
+
+    @NotBlank(message = "Número não pode ser vazio")
     private String numero;
+
     private String complemento;
+
+    @NotBlank(message = "Bairro não pode ser vazio")
     private String bairro;
+
+    @NotBlank(message = "Cidade não pode ser vazia")
     private String cidade;
-    private String uf;
+
+    @NotEmptyUF(message = "UF não pode ser vazio nem nulo")
+    private Uf uf;
+
+    @NotBlank(message = "CEP não pode ser vazio")
     private String cep;
 }
 
